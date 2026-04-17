@@ -6,6 +6,9 @@
  * These types enforce strict narrowing for our exception handling.
  * The ValidationError explicitly carries unknown details
  * and contains no formatting or diff logic.
+ *
+ * ParseError captures body deserialization failures that occur when
+ * the server's Content-Type header does not match the actual body content.
  */
 
 export interface GodspeedNetworkError extends Error {
@@ -31,11 +34,21 @@ export interface GodspeedValidationError extends Error {
   details: unknown;
 }
 
+export interface GodspeedParseError extends Error {
+  type: 'parse';
+  /**
+   * The Content-Type header value from the response that triggered
+   * the parse failure.
+   */
+  contentType: string;
+}
+
 /**
  * Union type representing any error explicitly thrown by the Godspeed pipeline.
  */
-export type GodspeedError = 
+export type GodspeedError =
   | GodspeedNetworkError
   | GodspeedTimeoutError
   | GodspeedHttpError
-  | GodspeedValidationError;
+  | GodspeedValidationError
+  | GodspeedParseError;

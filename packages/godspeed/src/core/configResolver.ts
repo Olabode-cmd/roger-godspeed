@@ -17,11 +17,16 @@ export function resolveConfig(
   base: GodspeedConfig,
   requestOptions: GodspeedConfig = {}
 ): GodspeedConfig {
-  const merged: GodspeedConfig = {
-    baseURL: requestOptions.baseURL ?? base.baseURL,
-    timeout: requestOptions.timeout ?? base.timeout,
-    retries: requestOptions.retries ?? base.retries,
-  };
+  const merged: GodspeedConfig = {};
+
+  const baseURL = requestOptions.baseURL ?? base.baseURL;
+  if (baseURL !== undefined) merged.baseURL = baseURL;
+
+  const timeout = requestOptions.timeout ?? base.timeout;
+  if (timeout !== undefined) merged.timeout = timeout;
+
+  const retries = requestOptions.retries ?? base.retries;
+  if (retries !== undefined) merged.retries = retries;
 
   if (base.headers || requestOptions.headers) {
     merged.headers = { ...base.headers, ...requestOptions.headers };

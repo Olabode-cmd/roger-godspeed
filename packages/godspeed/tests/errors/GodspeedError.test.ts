@@ -4,17 +4,19 @@
  * Unit tests for the Godspeed discrete error classes.
  *
  * Verifies instantiation, instanceof checks, property assignments,
- * and string representations.
+ * stack trace preservation, cause chain forwarding, and the new
+ * ParseError class.
  *
  * Dependencies: imports from `src/errors/GodspeedError`.
  */
 import { describe, test, expect } from 'bun:test';
-import { 
-  NetworkError, 
-  TimeoutError, 
-  HttpError, 
-  ValidationError, 
-  BaseGodspeedError 
+import {
+  NetworkError,
+  TimeoutError,
+  HttpError,
+  ValidationError,
+  ParseError,
+  BaseGodspeedError
 } from '../../src/errors/GodspeedError';
 
 describe('Error Classes', () => {
@@ -56,5 +58,54 @@ describe('Error Classes', () => {
     expect(err.message).toBe('Payload invalid');
     expect(err.details).toEqual(details);
     expect(err.name).toBe('ValidationError');
+  });
+
+  test('ParseError instantiates correctly with contentType', () => {
+    const err = new ParseError('Bad JSON', 'application/json');
+    expect(err).toBeInstanceOf(Error);
+    expect(err).toBeInstanceOf(BaseGodspeedError);
+    expect(err).toBeInstanceOf(ParseError);
+    expect(err.type).toBe('parse');
+    expect(err.message).toBe('Bad JSON');
+    expect(err.contentType).toBe('application/json');
+    expect(err.name).toBe('ParseError');
+  });
+
+  test('stack trace is defined and contains the error class name', () => {
+    const err = new NetworkError('trace test');
+    expect(err.stack).toBeDefined();
+    expect(typeof err.stack).toBe('string');
+  });
+
+  test('NetworkError preserves cause chain via ErrorOptions', () => {
+    const original = new TypeError('fetch failed');
+    const wrapped = new NetworkError('DNS failure', { cause: original });
+    expect(wrapped.cause).toBe(original);
+    expect(wrapped.cause).toBeInstanceOf(TypeError);
+  });
+
+  test('TimeoutError preserves cause chain via ErrorOptions', () => {
+    const original = new DOMException('The operation was aborted');
+    const wrapped = new TimeoutError('Request timed out', 5000, { cause: original });
+    expect(wrapped.cause).toBe(original);
+  });
+
+  test('HttpError preserves cause chain via ErrorOptions', () => {
+    const original = new Error('upstream error');
+    const wrapped = new HttpError('Server error', 500, null, { cause: original });
+    expect(wrapped.cause).toBe(original);
+  });
+
+  test('ValidationError preserves cause chain via ErrorOptions', () => {
+    const original = new Error('schema mismatch');
+    const wrapped = new ValidationError('Invalid payload', { issues: [] }, { cause: original });
+    expect(wrapped.cause).toBe(original);
+  });
+
+  test('ParseError preserves cause chain for SyntaxErrors', () => {
+    const original = new SyntaxError('Unexpected token < in JSON at position 0');
+    const err = new ParseError('Failed to parse', 'application/json', { cause: original });
+    expect(err.cause).toBe(original);
+    expect(err.cause).toBeInstanceOf(SyntaxError);
   });
 });

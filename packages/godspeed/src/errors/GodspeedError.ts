@@ -4,10 +4,14 @@
  * Implements the concrete Error classes for the Godspeed client.
  *
  * This module exists as a separate concern to act as the single source
- * of truth for exception instantiations without bundling external dependencies.
+ * of truth for exception instantiation without bundling external dependencies.
  *
- * Performance note: These classes merely initialize properties; they do no string manipulation
- * or formatting, maximizing instantiation speed.
+ * Performance note: These classes merely initialize properties; they do no
+ * string manipulation or formatting, maximizing instantiation speed.
+ *
+ * All constructors accept an optional `ErrorOptions` parameter to support
+ * the ES2022 error `cause` chain, preserving original stack traces when
+ * wrapping native exceptions.
  *
  * Dependencies: imports interfaces from `../types`.
  */
@@ -17,19 +21,21 @@ import type {
   GodspeedTimeoutError,
   GodspeedHttpError,
   GodspeedValidationError,
+  GodspeedParseError,
 } from '../types';
 
 /**
  * Base abstract class for Godspeed errors.
  *
  * Ensures all Godspeed errors can be identified via instanceof checks
- * and generic interface matching.
+ * and generic interface matching. Forwards the ES2022 `cause` option
+ * to preserve the original error chain.
  */
 export abstract class BaseGodspeedError extends Error {
   public abstract readonly type: string;
 
-  constructor(message: string) {
-    super(message);
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
     this.name = new.target.name;
     Object.setPrototypeOf(this, new.target.prototype);
   }
@@ -38,13 +44,14 @@ export abstract class BaseGodspeedError extends Error {
 /**
  * NetworkError class.
  *
- * Wraps native fetch failures like DNS resolution errors or connection timeouts.
+ * Wraps native fetch failures like DNS resolution errors or connection resets.
+ * The original exception should be passed as `cause` to preserve debug context.
  */
 export class NetworkError extends BaseGodspeedError implements GodspeedNetworkError {
   public readonly type = 'network';
 
-  constructor(message: string) {
-    super(message);
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
   }
 }
 
@@ -58,9 +65,10 @@ export class TimeoutError extends BaseGodspeedError implements GodspeedTimeoutEr
 
   constructor(
     message: string,
-    public readonly timeoutMs: number
+    public readonly timeoutMs: number,
+    options?: ErrorOptions
   ) {
-    super(message);
+    super(message, options);
   }
 }
 
@@ -76,9 +84,10 @@ export class HttpError extends BaseGodspeedError implements GodspeedHttpError {
   constructor(
     message: string,
     public readonly status: number,
-    public readonly body: unknown
+    public readonly body: unknown,
+    options?: ErrorOptions
   ) {
-    super(message);
+    super(message, options);
   }
 }
 
@@ -86,15 +95,35 @@ export class HttpError extends BaseGodspeedError implements GodspeedHttpError {
  * ValidationError class.
  *
  * A dumb data carrier for schema validation failures.
- * Contains no diff logic formatting to remain lightweight and tree-shakable.
+ * Contains no diff or formatting logic to remain lightweight and tree-shakable.
  */
 export class ValidationError extends BaseGodspeedError implements GodspeedValidationError {
   public readonly type = 'validation';
 
   constructor(
     message: string,
-    public readonly details: unknown
+    public readonly details: unknown,
+    options?: ErrorOptions
   ) {
-    super(message);
+    super(message, options);
+  }
+}
+
+/**
+ * ParseError class.
+ *
+ * Thrown when the response body cannot be deserialized according to
+ * the Content-Type header. Carries the content type that triggered the failure
+ * and the original parse exception as `cause`.
+ */
+export class ParseError extends BaseGodspeedError implements GodspeedParseError {
+  public readonly type = 'parse';
+
+  constructor(
+    message: string,
+    public readonly contentType: string,
+    options?: ErrorOptions
+  ) {
+    super(message, options);
   }
 }
