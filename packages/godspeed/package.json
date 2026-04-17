@@ -1,0 +1,24 @@
+{
+  "name": "@roger/godspeed",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "build": "tsup",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./compat": {
+      "import": "./dist/compat/index.mjs",
+      "require": "./dist/compat/index.cjs",
+      "types": "./dist/compat/index.d.ts"
+    }
+  }
+}
