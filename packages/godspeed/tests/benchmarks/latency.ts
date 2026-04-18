@@ -1,7 +1,7 @@
 /**
  * latency.ts
  *
- * Micro-benchmarking script comparing Godspeed vs Axios vs Apisauce.
+ * Micro-benchmarking script comparing Godspeed vs Ky vs Axios vs Apisauce vs Native Fetch.
  * Uses Bun.serve() for a local echo server to measure real TTFB,
  * network stack overhead, and single-pass JSON parsing speed.
  *
@@ -11,6 +11,7 @@
 import { GodspeedClient } from '../../src/core/GodspeedClient';
 import axios from 'axios';
 import { create } from 'apisauce';
+import ky from 'ky';
 
 const ITERATIONS = 10000;
 
@@ -38,7 +39,16 @@ async function runBenchmark() {
 
   const asauce = create({ baseURL: url });
   asauce.addRequestTransform(request => { 
-    // minimal 1 transform allocation to match fairness
+    // minimal 1 transform allocation
+  });
+
+  const kyClient = ky.create({
+    baseUrl: url,
+    hooks: {
+      beforeRequest: [
+        request => { /* 1 hook allocation */ }
+      ]
+    }
   });
 
   // 3. Warm-up Phase (JIT Compilation)
@@ -47,10 +57,23 @@ async function runBenchmark() {
     await godspeed.get('/warmup');
     await ax.get('/warmup');
     await asauce.get('/warmup');
+    await kyClient.get('warmup');
+    await fetch(`${url}/warmup`).then(r => r.json());
   }
 
-  // 4. Godspeed Benchmark
-  console.log(`\n🚀 Running Godspeed iterations...`);
+  // 4. Native Fetch Benchmark
+  console.log(`\n🌐 Running Native Fetch iterations (Baseline)...`);
+  Bun.gc(true);
+  const startFetch = Bun.nanoseconds();
+  for (let i = 0; i < ITERATIONS; i++) {
+    const res = await fetch(`${url}/data`);
+    await res.json();
+  }
+  const endFetch = Bun.nanoseconds();
+  const fetchMs = (endFetch - startFetch) / 1_000_000;
+
+  // 5. Godspeed Benchmark
+  console.log(`🚀 Running Godspeed iterations...`);
   Bun.gc(true); // Force GC to get clean memory baseline
   const startGs = Bun.nanoseconds();
   for (let i = 0; i < ITERATIONS; i++) {
@@ -59,7 +82,17 @@ async function runBenchmark() {
   const endGs = Bun.nanoseconds();
   const godspeedMs = (endGs - startGs) / 1_000_000;
 
-  // 5. Axios Benchmark
+  // 6. Ky Benchmark
+  console.log(`🦊 Running Ky iterations...`);
+  Bun.gc(true);
+  const startKy = Bun.nanoseconds();
+  for (let i = 0; i < ITERATIONS; i++) {
+    await kyClient.get('data').json(); 
+  }
+  const endKy = Bun.nanoseconds();
+  const kyMs = (endKy - startKy) / 1_000_000;
+
+  // 7. Axios Benchmark
   console.log(`🐢 Running Axios iterations...`);
   Bun.gc(true);
   const startAx = Bun.nanoseconds();
@@ -69,7 +102,7 @@ async function runBenchmark() {
   const endAx = Bun.nanoseconds();
   const axiosMs = (endAx - startAx) / 1_000_000;
 
-  // 6. Apisauce Benchmark
+  // 8. Apisauce Benchmark
   console.log(`🐢 Running Apisauce iterations...`);
   Bun.gc(true);
   const startAs = Bun.nanoseconds();
@@ -79,17 +112,19 @@ async function runBenchmark() {
   const endAs = Bun.nanoseconds();
   const sauceMs = (endAs - startAs) / 1_000_000;
 
-
-  // 7. Results
+  // 9. Results
   console.log(`\n=============================================`);
   console.log(`📊 BENCHMARK RESULTS (${ITERATIONS} Sequential Requests)`);
   console.log(`=============================================`);
-  console.log(`Godspeed (Native):    ${godspeedMs.toFixed(2)} ms`);
+  console.log(`Raw Native Fetch:     ${fetchMs.toFixed(2)} ms (Absolute Baseline)`);
+  console.log(`Godspeed:             ${godspeedMs.toFixed(2)} ms`);
+  console.log(`Ky:                   ${kyMs.toFixed(2)} ms`);
   console.log(`Axios:                ${axiosMs.toFixed(2)} ms`);
   console.log(`Apisauce:             ${sauceMs.toFixed(2)} ms`);
   
-  console.log(`\n🏆 Godspeed vs Axios:    ${(axiosMs / godspeedMs).toFixed(2)}x faster`);
-  console.log(`🏆 Godspeed vs Apisauce: ${(sauceMs / godspeedMs).toFixed(2)}x faster`);
+  console.log(`\n🏆 Godspeed vs Fetch:    ${(godspeedMs / fetchMs).toFixed(2)}x slower (The "Abstraction Tax")`);
+  console.log(`🏆 Godspeed vs Ky:       ${(kyMs / godspeedMs).toFixed(2)}x faster`);
+  console.log(`🏆 Godspeed vs Axios:    ${(axiosMs / godspeedMs).toFixed(2)}x faster`);
   console.log(`=============================================\n`);
 
   server.stop(true);
