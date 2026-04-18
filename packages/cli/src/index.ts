@@ -29,7 +29,7 @@ program
 
     try {
       const reportPath = path.resolve(process.cwd(), 'godspeed-migration-report.md');
-      fs.writeFileSync(reportPath, '# Godspeed Migration Report\n\nAutomated AST migration results:\n\nSummary of files explicitly requiring manual review due to behavioral differences in Godspeed\\'s Compat Layer:\n\n');
+      fs.writeFileSync(reportPath, "# Godspeed Migration Report\n\nAutomated AST migration results:\n\nSummary of files explicitly requiring manual review due to behavioral differences in Godspeed's Compat Layer:\n\n");
 
       const res = await run(transformPath, paths, {
         dry: options.dry,
