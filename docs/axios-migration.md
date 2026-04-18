@@ -3,17 +3,17 @@
 Transitioning from Axios to Godspeed is designed to be a smooth, straightforward process. We've built dedicated tools to ensure you can upgrade your network layer and immediately benefit from massive performance gains with minimal friction.
 
 Godspeed provides two excellent paths for migration:
-1.  **The Compat Layer:** A drop-in bridging adapter (`@roger/godspeed/compat`) that allows you to keep your existing Axios code while running the Godspeed engine under the hood.
+1.  **The Compat Layer:** A drop-in bridging adapter (`@thraggs/godspeed/compat`) that allows you to keep your existing Axios code while running the Godspeed engine under the hood.
 2.  **Native Godspeed:** A more direct integration utilizing our high-performance Koa-style middleware pipeline for maximum speed.
 
 For most applications, the Compat Layer gets you 99% of the way there automatically. This guide covers how to use these tools and highlights a few minor adjustments you might need for advanced use cases.
 
 ## The Migration CLI
 
-The fastest way to migrate is using our automated AST tool (`@godspeed/cli`). It safely and automatically rewrites your standard `axios` imports to use the Godspeed compat layer.
+The fastest way to migrate is using our automated AST tool (`@thraggs/cli`). It safely and automatically rewrites your standard `axios` imports to use the Godspeed compat layer.
 
 ```bash
-bunx @godspeed/cli migrate ./src
+bunx @thraggs/cli migrate ./src
 ```
 
 This single command will update your imports and handle standard `axios.get` and `axios.post` patterns. Your application will immediately start using Godspeed without needing widespread manual rewrites.

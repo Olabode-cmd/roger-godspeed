@@ -30,9 +30,9 @@ Most contributions should focus on the edges of the ecosystem:
 
 ## The Zero-Dependency "Roger" Brand
 
-We maintain a strict **zero-dependency rule** for the core `@roger/godspeed` package. 
+We maintain a strict **zero-dependency rule** for the core `@thraggs/godspeed` package. 
 - If you try to pull in a utility library like `lodash`, `ramda`, or any external validation library into the core, it is an immediate **"No."**
-- External tools are only permitted within the `@godspeed/cli` workspace, which exists precisely to keep those dependencies out of the core client.
+- External tools are only permitted within the `@thraggs/cli` workspace, which exists precisely to keep those dependencies out of the core client.
 
 ---
 

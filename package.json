@@ -1,5 +1,5 @@
 {
-  "name": "@roger/godspeed-workspace",
+  "name": "@thraggs/godspeed-workspace",
   "private": true,
   "workspaces": [
     "packages/*"

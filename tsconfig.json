@@ -18,6 +18,7 @@
       "bun"
     ],
     "exactOptionalPropertyTypes": true,
-    "noUncheckedIndexedAccess": true
+    "noUncheckedIndexedAccess": true,
+    "ignoreDeprecations": "6.0"
   }
 }

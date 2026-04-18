@@ -1,8 +1,7 @@
 {
-  "name": "@godspeed/cli",
+  "name": "@thraggs/cli",
   "type": "module",
-  "version": "0.0.1",
-  "private": true,
+  "version": "1.0.0",
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "build": "tsup",

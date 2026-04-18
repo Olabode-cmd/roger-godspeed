@@ -16,13 +16,13 @@ Godspeed prioritizes execution speed. Every architectural decision is oriented a
 ## Installation
 
 ```bash
-bun add @roger/godspeed
+bun add @thraggs/godspeed
 ```
 
 ## Quick Start
 
 ```typescript
-import { GodspeedClient } from '@roger/godspeed';
+import { GodspeedClient } from '@thraggs/godspeed';
 
 const client = new GodspeedClient({
   baseURL: 'https://api.example.com',

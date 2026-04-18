@@ -1,10 +1,10 @@
 /**
  * transform.ts
  *
- * jscodeshift codemod to migrate Axios -> roger-godspeed/GodspeedClient.
+ * jscodeshift codemod to migrate Axios -> @thraggs/godspeed/compat.
  * 
  * Safely manipulates the AST to:
- * 1. Swap 'axios' imports to 'roger-godspeed' natively.
+ * 1. Swap 'axios' imports to '@thraggs/godspeed/compat' natively.
  * 2. Replace 'axios.create(...)' invocations with 'new GodspeedClient(...)'.
  * 
  * This fulfills Phase 9 dictates for automated enterprise refactoring.
@@ -21,9 +21,9 @@ export default function transformer(fileInfo: FileInfo, api: API, options: Optio
 
   root.find(j.ImportDeclaration, { source: { value: 'axios' } }).forEach((path) => {
     isDirty = true;
-    path.node.source.value = 'roger-godspeed';
+    path.node.source.value = '@thraggs/godspeed/compat';
 
-    // Map `import axios from 'axios'` -> `import { GodspeedClient as axios } from 'roger-godspeed'`
+    // Map `import axios from 'axios'` -> `import { GodspeedClient as axios } from '@thraggs/godspeed/compat'`
     // to preserve variable scope on `axios.get()` downstream, but transforming `axios.create()` explicitly natively.
     const defaultSpecifier = path.node.specifiers?.find(s => s.type === 'ImportDefaultSpecifier');
     
