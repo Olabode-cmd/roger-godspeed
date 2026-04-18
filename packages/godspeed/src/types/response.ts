@@ -8,7 +8,7 @@
  * consumption rule across the entire middleware pipeline.
  */
 
-export interface GodspeedResponse<TData = unknown> {
+export interface GodspeedResponse<TData = any> {
   /**
    * The HTTP status code (e.g., 200, 404).
    */

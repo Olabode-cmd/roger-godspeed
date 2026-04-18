@@ -55,8 +55,8 @@ function createInstance(config: GodspeedConfig = {}) {
  * It is both a function and an object with HTTP methods.
  */
 export interface AxiosInstance extends AxiosCompatClient {
-  (config: any): Promise<GodspeedResponse<unknown>>;
-  (url: string, config?: any): Promise<GodspeedResponse<unknown>>;
+  (config: any): Promise<GodspeedResponse<any>>;
+  (url: string, config?: any): Promise<GodspeedResponse<any>>;
 }
 
 /**
