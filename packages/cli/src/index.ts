@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /**
  * index.ts
  *
@@ -16,15 +17,20 @@ const __dirname = path.dirname(__filename);
 const program = new Command();
 
 program
-  .name('godspeed-migrate')
+  .name('godspeed')
+  .description('Godspeed Ecosystem CLI')
+  .version('1.0.2');
+
+program
+  .command('migrate')
   .description('Automated AST Migration Engine for migrating Axios codebases to GodspeedClient.')
-  .version('0.0.1')
   .argument('<path...>', 'File paths or directories to migrate')
   .option('-d, --dry', 'Dry run (no changes are made to files)')
   .option('-p, --print', 'Print transformed files to stdout')
   .action(async (paths, options) => {
     console.log('⚡ Initializing Godspeed AST Migration Engine...');
     
+    // In built version, transform.js is in the same dist folder
     const transformPath = path.resolve(__dirname, './transform.js');
 
     try {
@@ -36,7 +42,9 @@ program
         print: options.print,
         verbose: 1,
         runInBand: true,
-        parser: 'ts'
+        parser: 'tsx',
+        extensions: 'ts,tsx,js,jsx',
+        ignorePattern: '**/node_modules/**'
       });
       console.log(`✅ Godspeed Engine Migration Complete.`);
       console.log(`📄 Check godspeed-migration-report.md for manual review items.`);

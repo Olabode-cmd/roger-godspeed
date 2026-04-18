@@ -32,4 +32,10 @@ export interface GodspeedConfig {
    * Maximum number of retry attempts for idempotent requests.
    */
   retries?: number;
+
+  /**
+   * Whether to include credentials (cookies) in the request.
+   * Maps to fetch's `credentials: 'include'`.
+   */
+  withCredentials?: boolean;
 }

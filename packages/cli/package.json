@@ -1,9 +1,9 @@
 {
   "name": "@thraggs/cli",
   "type": "module",
-  "version": "1.0.2",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
+  "version": "1.0.4",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "bun --watch src/index.ts",
@@ -11,8 +11,17 @@
     "test": "bun test",
     "typecheck": "tsc --noEmit"
   },
+  "files": [
+    "dist",
+    "bin"
+  ],
   "dependencies": {
     "commander": "^12.0.0",
     "jscodeshift": "^17.3.0"
+  },
+  "bin": {
+    "godspeed-migrate": "./bin/godspeed-migrate.js",
+    "godspeed": "./bin/godspeed-migrate.js",
+    "cli": "./bin/godspeed-migrate.js"
   }
 }

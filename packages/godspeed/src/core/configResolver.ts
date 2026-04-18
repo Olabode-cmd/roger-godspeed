@@ -28,6 +28,9 @@ export function resolveConfig(
   const retries = requestOptions.retries ?? base.retries;
   if (retries !== undefined) merged.retries = retries;
 
+  const withCredentials = requestOptions.withCredentials ?? base.withCredentials;
+  if (withCredentials !== undefined) merged.withCredentials = withCredentials;
+
   if (base.headers || requestOptions.headers) {
     merged.headers = { ...base.headers, ...requestOptions.headers };
   }

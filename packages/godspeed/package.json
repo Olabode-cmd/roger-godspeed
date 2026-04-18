@@ -1,7 +1,7 @@
 {
   "name": "@thraggs/godspeed",
   "type": "module",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -14,6 +14,9 @@
     "test": "bun test",
     "typecheck": "tsc --noEmit"
   },
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

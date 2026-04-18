@@ -125,7 +125,37 @@ export function axiosAdapter(): {
 
     const processedReq = await requestChain;
 
-    let responseChain: Promise<GodspeedResponse<unknown>> = next(processedReq);
+    let responseChain: Promise<GodspeedResponse<unknown>>;
+    try {
+      responseChain = next(processedReq);
+    } catch (err: any) {
+      // Decorate synchronous errors
+      err.config = processedReq;
+      throw err;
+    }
+
+    // Wrap the response promise to decorate both Success and Error objects
+    responseChain = responseChain
+      .then((res: any) => {
+        // Decorate Success
+        res.data = res.parsedBody;
+        res.config = processedReq;
+        return res;
+      })
+      .catch((err: any) => {
+        // Decorate Error
+        err.config = processedReq;
+        if (err.type === 'http') {
+          err.response = {
+            status: err.status,
+            data: err.body,
+            config: processedReq,
+            headers: {}
+          };
+        }
+        throw err;
+      });
+
     for (const handler of responseHandlers) {
       responseChain = responseChain.then(handler.fulfilled, handler.rejected);
     }

@@ -69,6 +69,10 @@ export function buildRequest(
   const headers = new Headers(config.headers);
   const init: RequestInit = { method, headers };
 
+  if (config.withCredentials) {
+    init.credentials = 'include';
+  }
+
   if (body !== undefined && body !== null) {
     if (typeof body === 'string') {
       init.body = body;
