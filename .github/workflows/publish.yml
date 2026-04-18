@@ -3,7 +3,9 @@ name: Publish to NPM
 on:
   push:
     branches:
-      - main 
+      - main
+    paths:
+      - 'packages/**/package.json'
 
 jobs:
   publish:
