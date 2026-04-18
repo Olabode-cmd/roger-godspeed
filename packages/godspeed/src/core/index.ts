@@ -1,5 +1,2 @@
-export * from './GodspeedClient';
-export * from './configResolver';
-export * from './requestBuilder';
-export * from './responseParser';
-export * from './pipeline';
+export { GodspeedClient } from './GodspeedClient';
+export { createPipeline } from './pipeline';

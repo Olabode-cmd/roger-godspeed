@@ -43,6 +43,20 @@ Axios response error interceptors function similarly to Promise `.catch()` handl
 **What to know:**
 Godspeed's onion architecture utilizes standard, predictable `try/catch` error bubbling. Errors bubble cleanly up the middleware stack. This gives you absolute control over scoping and recovering from errors. Translating complex Axios rejection handlers merely requires wrapping your `await next()` calls in standard `try/catch` blocks.
 
+## Known Differences
+
+The compat layer faithfully replicates Axios's interceptor execution order (LIFO for request, FIFO for response) and ejection semantics. However, a few behavioral differences exist due to Godspeed's type-safe, two-phase architecture:
+
+| Axios Behavior | Godspeed Compat Behavior |
+|:---|:---|
+| Request interceptor rejections flow into response interceptor reject handlers via a single flat promise chain. | Request-phase errors throw before dispatch. Response interceptor reject handlers only see response-phase errors. |
+| Rejected handler recovery can return any value (untyped promise chain). | Rejected handler recovery must return the correct phase type (`Request` for request interceptors, `GodspeedResponse` for response interceptors). |
+| `response.data` contains the parsed body. | `response.parsedBody` contains the parsed body. |
+| `transformRequest` / `transformResponse` supported. | Not supported. Use Godspeed middleware for equivalent functionality. |
+| `cancelToken` supported for request cancellation. | Not supported. Use `AbortController` with `AbortSignal`. |
+| `onUploadProgress` / `onDownloadProgress` supported. | Not supported. Use native `ReadableStream` progress tracking. |
+| `config.data` carries the request body. | Request body is part of the native `Request` object. |
+
 ## Summary
 
 Migrating to Godspeed is an exceptionally high-ROI upgrade. By using the Compat Layer and our automated CLI, the vast majority of your codebase can transition seamlessly. For the few advanced interceptors that require manual refactoring, embracing Godspeed's modern middleware patterns will leave your codebase cleaner, safer, and significantly faster.
