@@ -38,4 +38,9 @@ export interface GodspeedConfig {
    * Maps to fetch's `credentials: 'include'`.
    */
   withCredentials?: boolean;
+
+  /**
+   * Query parameters to append to the URL.
+   */
+  params?: Record<string, any>;
 }

@@ -66,6 +66,22 @@ export function buildRequest(
     urlStr = `${base}${reqPath}`;
   }
 
+  if (config.params && Object.keys(config.params).length > 0) {
+    const searchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(config.params)) {
+      if (value !== undefined && value !== null) {
+        searchParams.append(key, String(value));
+      }
+    }
+    const queryString = searchParams.toString();
+    if (queryString) {
+      urlStr += (urlStr.includes('?') ? '&' : '?') + queryString;
+    }
+  }
+
+  // Diagnostic log for real-time development debugging
+  console.debug(`[Godspeed] ${method} ${urlStr}`);
+
   const headers = new Headers(config.headers);
   const init: RequestInit = { method, headers };
 

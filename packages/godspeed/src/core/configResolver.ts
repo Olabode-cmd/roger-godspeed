@@ -31,6 +31,10 @@ export function resolveConfig(
   const withCredentials = requestOptions.withCredentials ?? base.withCredentials;
   if (withCredentials !== undefined) merged.withCredentials = withCredentials;
 
+  if (base.params || requestOptions.params) {
+    merged.params = { ...base.params, ...requestOptions.params };
+  }
+
   if (base.headers || requestOptions.headers) {
     merged.headers = { ...base.headers, ...requestOptions.headers };
   }
