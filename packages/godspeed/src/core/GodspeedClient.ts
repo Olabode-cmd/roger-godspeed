@@ -55,31 +55,31 @@ export class GodspeedClient {
     return this.pipeline;
   }
 
-  public async get(path: string, options?: GodspeedConfig): Promise<GodspeedResponse<unknown>> {
-    return this.dispatch()('GET', path, options);
+  public async get<T = unknown>(path: string, options?: GodspeedConfig): Promise<GodspeedResponse<T>> {
+    return this.dispatch()('GET', path, options) as Promise<GodspeedResponse<T>>;
   }
 
-  public async post(path: string, body?: unknown, options?: GodspeedConfig): Promise<GodspeedResponse<unknown>> {
-    return this.dispatch()('POST', path, options, body);
+  public async post<T = unknown>(path: string, body?: unknown, options?: GodspeedConfig): Promise<GodspeedResponse<T>> {
+    return this.dispatch()('POST', path, options, body) as Promise<GodspeedResponse<T>>;
   }
 
-  public async put(path: string, body?: unknown, options?: GodspeedConfig): Promise<GodspeedResponse<unknown>> {
-    return this.dispatch()('PUT', path, options, body);
+  public async put<T = unknown>(path: string, body?: unknown, options?: GodspeedConfig): Promise<GodspeedResponse<T>> {
+    return this.dispatch()('PUT', path, options, body) as Promise<GodspeedResponse<T>>;
   }
 
-  public async patch(path: string, body?: unknown, options?: GodspeedConfig): Promise<GodspeedResponse<unknown>> {
-    return this.dispatch()('PATCH', path, options, body);
+  public async patch<T = unknown>(path: string, body?: unknown, options?: GodspeedConfig): Promise<GodspeedResponse<T>> {
+    return this.dispatch()('PATCH', path, options, body) as Promise<GodspeedResponse<T>>;
   }
 
-  public async delete(path: string, options?: GodspeedConfig): Promise<GodspeedResponse<unknown>> {
-    return this.dispatch()('DELETE', path, options);
+  public async delete<T = unknown>(path: string, options?: GodspeedConfig): Promise<GodspeedResponse<T>> {
+    return this.dispatch()('DELETE', path, options) as Promise<GodspeedResponse<T>>;
   }
 
-  public async head(path: string, options?: GodspeedConfig): Promise<GodspeedResponse<unknown>> {
-    return this.dispatch()('HEAD', path, options);
+  public async head<T = unknown>(path: string, options?: GodspeedConfig): Promise<GodspeedResponse<T>> {
+    return this.dispatch()('HEAD', path, options) as Promise<GodspeedResponse<T>>;
   }
 
-  public async options(path: string, options?: GodspeedConfig): Promise<GodspeedResponse<unknown>> {
-    return this.dispatch()('OPTIONS', path, options);
+  public async options<T = unknown>(path: string, options?: GodspeedConfig): Promise<GodspeedResponse<T>> {
+    return this.dispatch()('OPTIONS', path, options) as Promise<GodspeedResponse<T>>;
   }
 }

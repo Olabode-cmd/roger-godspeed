@@ -29,7 +29,7 @@ export class AxiosCompatClient extends BaseClient {
  * Creates an Axios-compatible client instance.
  * Returns a function that is also an instance of AxiosCompatClient.
  */
-export function createInstance(config: GodspeedConfig = {}) {
+function createInstance(config: GodspeedConfig = {}) {
   const context = new AxiosCompatClient(config);
   const instance = context.request.bind(context) as any;
 
@@ -47,8 +47,28 @@ export function createInstance(config: GodspeedConfig = {}) {
   // Copy instance properties (like interceptors)
   Object.assign(instance, context);
   
-  return instance;
+  return instance as AxiosInstance;
 }
 
-export { createInstance as GodspeedClient };
+/**
+ * Interface for the godspeed client instance when used in Axios compatibility mode.
+ * It is both a function and an object with HTTP methods.
+ */
+export interface AxiosInstance extends AxiosCompatClient {
+  (config: any): Promise<GodspeedResponse<unknown>>;
+  (url: string, config?: any): Promise<GodspeedResponse<unknown>>;
+}
+
+/**
+ * Static interface for the GodspeedClient constructor in compat mode.
+ */
+export interface GodspeedStatic {
+  new (config?: GodspeedConfig): AxiosInstance;
+  (config?: GodspeedConfig): AxiosInstance;
+}
+
+const ExportedClient = createInstance as unknown as GodspeedStatic;
+export { ExportedClient as GodspeedClient };
 export * from './interceptorAdapter';
+
+

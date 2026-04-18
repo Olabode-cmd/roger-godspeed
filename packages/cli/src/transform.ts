@@ -59,7 +59,19 @@ export default function transformer(fileInfo: FileInfo, api: API, options: Optio
         if (astPath.node.object.type === 'Identifier' && astPath.node.object.name === localAxiosName) {
           const reportPath = path.resolve(process.cwd(), 'godspeed-migration-report.md');
           const line = astPath.node.loc?.start.line ?? 'unknown';
-          const msg = `- ⚠️ **Interceptor Pattern Flagged:** \`${fileInfo.path}\` (line ${line}). Review error throwing and promise chaining against the Compat Layer differences.\n`;
+          const msg = `- ⚠️ **Interceptor Pattern Flagged:** \`${fileInfo.path}\` (line ${line}).\n` +
+            `  *   **Recommendation:** While the Compat Layer supports this, consider migrating to native Godspeed Middleware for better performance:\n` +
+            `      \`\`\`typescript\n` +
+            `      // Before (Axios Interceptor)\n` +
+            `      api.interceptors.request.use(config => { ... });\n\n` +
+            `      // After (Godspeed Middleware)\n` +
+            `      api.use(async (req, next) => {\n` +
+            `        // Request phase\n` +
+            `        const res = await next(req);\n` +
+            `        // Response phase\n` +
+            `        return res;\n` +
+            `      });\n` +
+            `      \`\`\`\n`;
           try {
             fs.appendFileSync(reportPath, msg);
           } catch (e) {

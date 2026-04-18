@@ -79,9 +79,6 @@ export function buildRequest(
     }
   }
 
-  // Diagnostic log for real-time development debugging
-  console.debug(`[Godspeed] ${method} ${urlStr}`);
-
   const headers = new Headers(config.headers);
   const init: RequestInit = { method, headers };
 

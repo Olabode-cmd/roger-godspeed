@@ -30,4 +30,9 @@ export interface GodspeedResponse<TData = unknown> {
    * to access or clone raw streams.
    */
   parsedBody: TData;
+
+  /**
+   * Alias for parsedBody used by the Axios compatibility layer.
+   */
+  data: TData;
 }
