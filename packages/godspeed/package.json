@@ -23,5 +23,9 @@
       "require": "./dist/compat/index.cjs",
       "types": "./dist/compat/index.d.ts"
     }
+  },
+  "devDependencies": {
+    "apisauce": "^3.2.2",
+    "axios": "^1.15.0"
   }
 }
