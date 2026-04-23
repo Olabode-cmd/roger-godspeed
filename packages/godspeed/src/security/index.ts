@@ -1,0 +1,1 @@
+export { assertNotSSRF } from './ssrf';

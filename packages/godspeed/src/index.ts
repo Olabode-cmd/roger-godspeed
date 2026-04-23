@@ -26,6 +26,7 @@ export type {
   GodspeedHttpError,
   GodspeedValidationError,
   GodspeedParseError,
+  GodspeedSSRFError,
 } from './types';
 
 export {
@@ -35,6 +36,7 @@ export {
   HttpError,
   ValidationError,
   ParseError,
+  SSRFError,
 } from './errors';
 
 export { bearerAuth } from './middleware/auth';

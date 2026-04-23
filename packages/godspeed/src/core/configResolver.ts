@@ -31,6 +31,9 @@ export function resolveConfig(
   const withCredentials = requestOptions.withCredentials ?? base.withCredentials;
   if (withCredentials !== undefined) merged.withCredentials = withCredentials;
 
+  const allowPrivateNetworks = requestOptions.allowPrivateNetworks ?? base.allowPrivateNetworks;
+  if (allowPrivateNetworks !== undefined) merged.allowPrivateNetworks = allowPrivateNetworks;
+
   if (base.params || requestOptions.params) {
     merged.params = { ...base.params, ...requestOptions.params };
   }

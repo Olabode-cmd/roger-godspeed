@@ -22,6 +22,7 @@ import type {
   GodspeedHttpError,
   GodspeedValidationError,
   GodspeedParseError,
+  GodspeedSSRFError,
 } from '../types';
 
 /**
@@ -122,6 +123,24 @@ export class ParseError extends BaseGodspeedError implements GodspeedParseError 
   constructor(
     message: string,
     public readonly contentType: string,
+    options?: ErrorOptions
+  ) {
+    super(message, options);
+  }
+}
+
+/**
+ * SSRFError class.
+ *
+ * Thrown when a request targets a private, reserved, or otherwise
+ * blocked network address. Carries the offending URL for diagnostics.
+ */
+export class SSRFError extends BaseGodspeedError implements GodspeedSSRFError {
+  public readonly type = 'ssrf';
+
+  constructor(
+    message: string,
+    public readonly blockedURL: string,
     options?: ErrorOptions
   ) {
     super(message, options);

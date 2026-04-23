@@ -31,7 +31,7 @@ async function runBenchmark() {
   const url = `http://localhost:${server.port}`;
 
   // 2. Initialize Clients with equivalent middleware/interceptor load
-  const godspeed = new GodspeedClient({ baseURL: url });
+  const godspeed = new GodspeedClient({ baseURL: url, allowPrivateNetworks: true });
   godspeed.use(async (req, next) => next(req)); // 1 middleware allocation
 
   const ax = axios.create({ baseURL: url });

@@ -43,6 +43,14 @@ export interface GodspeedParseError extends Error {
   contentType: string;
 }
 
+export interface GodspeedSSRFError extends Error {
+  type: 'ssrf';
+  /**
+   * The URL that was blocked by the SSRF guard.
+   */
+  blockedURL: string;
+}
+
 /**
  * Union type representing any error explicitly thrown by the Godspeed pipeline.
  */
@@ -51,4 +59,5 @@ export type GodspeedError =
   | GodspeedTimeoutError
   | GodspeedHttpError
   | GodspeedValidationError
-  | GodspeedParseError;
+  | GodspeedParseError
+  | GodspeedSSRFError;

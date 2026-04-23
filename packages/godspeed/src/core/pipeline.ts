@@ -17,13 +17,14 @@
  * to avoid crashing applications that only import types.
  *
  * Dependencies: configResolver, requestBuilder, responseParser,
- *               compose, withRetries, error classes.
+ *               compose, withRetries, ssrf guard, error classes.
  */
 import { resolveConfig } from './configResolver';
 import { buildRequest } from './requestBuilder';
 import { parseResponse } from './responseParser';
 import { compose } from '../middleware/compose';
 import { withRetries } from '../retry/retryHandler';
+import { assertNotSSRF } from '../security';
 import { NetworkError, TimeoutError, HttpError } from '../errors';
 import type { GodspeedConfig, MiddlewareFn, NextFn, GodspeedResponse } from '../types';
 
@@ -74,6 +75,8 @@ export function createPipeline(
   ): Promise<GodspeedResponse<unknown>> {
     const config = resolveConfig(baseConfig, options);
     const req = buildRequest(method, path, config, body);
+
+    assertNotSSRF(req.url, config.allowPrivateNetworks === true);
 
     const baseFetch: NextFn = async (finalReq: Request) => {
       let finalSignal = finalReq.signal;

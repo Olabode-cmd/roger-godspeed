@@ -43,4 +43,11 @@ export interface GodspeedConfig {
    * Query parameters to append to the URL.
    */
   params?: Record<string, any>;
+
+  /**
+   * When true, allows requests to private/internal network addresses.
+   * Defaults to false, blocking SSRF attempts to RFC 1918, loopback,
+   * link-local, and cloud metadata endpoints.
+   */
+  allowPrivateNetworks?: boolean;
 }
