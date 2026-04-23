@@ -27,6 +27,7 @@ export type {
   GodspeedValidationError,
   GodspeedParseError,
   GodspeedSSRFError,
+  GodspeedResponseSizeError,
 } from './types';
 
 export {
@@ -37,6 +38,7 @@ export {
   ValidationError,
   ParseError,
   SSRFError,
+  ResponseSizeError,
 } from './errors';
 
 export { bearerAuth } from './middleware/auth';

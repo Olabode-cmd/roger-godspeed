@@ -23,6 +23,7 @@ import type {
   GodspeedValidationError,
   GodspeedParseError,
   GodspeedSSRFError,
+  GodspeedResponseSizeError,
 } from '../types';
 
 /**
@@ -141,6 +142,25 @@ export class SSRFError extends BaseGodspeedError implements GodspeedSSRFError {
   constructor(
     message: string,
     public readonly blockedURL: string,
+    options?: ErrorOptions
+  ) {
+    super(message, options);
+  }
+}
+
+/**
+ * ResponseSizeError class.
+ *
+ * Thrown when a response body exceeds the configured maximum size limit.
+ * Carries both the limit and the actual/projected size for diagnostics.
+ */
+export class ResponseSizeError extends BaseGodspeedError implements GodspeedResponseSizeError {
+  public readonly type = 'response_size';
+
+  constructor(
+    message: string,
+    public readonly maxSize: number,
+    public readonly actualSize: number,
     options?: ErrorOptions
   ) {
     super(message, options);

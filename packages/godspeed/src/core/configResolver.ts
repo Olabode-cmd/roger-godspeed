@@ -34,6 +34,9 @@ export function resolveConfig(
   const allowPrivateNetworks = requestOptions.allowPrivateNetworks ?? base.allowPrivateNetworks;
   if (allowPrivateNetworks !== undefined) merged.allowPrivateNetworks = allowPrivateNetworks;
 
+  const maxResponseSize = requestOptions.maxResponseSize ?? base.maxResponseSize;
+  if (maxResponseSize !== undefined) merged.maxResponseSize = maxResponseSize;
+
   if (base.params || requestOptions.params) {
     merged.params = { ...base.params, ...requestOptions.params };
   }

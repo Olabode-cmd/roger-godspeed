@@ -102,7 +102,7 @@ export function createPipeline(
         throw new NetworkError('Network request failed', { cause: err });
       }
 
-      const godspeedRes = await parseResponse(rawResponse);
+      const godspeedRes = await parseResponse(rawResponse, config.maxResponseSize);
 
       if (godspeedRes.status < 200 || godspeedRes.status >= 300) {
         throw new HttpError(

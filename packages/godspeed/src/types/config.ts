@@ -50,4 +50,10 @@ export interface GodspeedConfig {
    * link-local, and cloud metadata endpoints.
    */
   allowPrivateNetworks?: boolean;
+
+  /**
+   * Maximum allowed response body size in bytes.
+   * Defaults to 10MB. Prevents memory exhaustion from unbounded responses.
+   */
+  maxResponseSize?: number;
 }

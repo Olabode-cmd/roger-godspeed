@@ -51,6 +51,18 @@ export interface GodspeedSSRFError extends Error {
   blockedURL: string;
 }
 
+export interface GodspeedResponseSizeError extends Error {
+  type: 'response_size';
+  /**
+   * The maximum allowed response size in bytes.
+   */
+  maxSize: number;
+  /**
+   * The actual size that was encountered or projected.
+   */
+  actualSize: number;
+}
+
 /**
  * Union type representing any error explicitly thrown by the Godspeed pipeline.
  */
@@ -60,4 +72,5 @@ export type GodspeedError =
   | GodspeedHttpError
   | GodspeedValidationError
   | GodspeedParseError
-  | GodspeedSSRFError;
+  | GodspeedSSRFError
+  | GodspeedResponseSizeError;
