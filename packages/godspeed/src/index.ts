@@ -28,6 +28,7 @@ export type {
   GodspeedParseError,
   GodspeedSSRFError,
   GodspeedResponseSizeError,
+  GodspeedHeaderInjectionError,
 } from './types';
 
 export {
@@ -39,6 +40,7 @@ export {
   ParseError,
   SSRFError,
   ResponseSizeError,
+  HeaderInjectionError,
 } from './errors';
 
 export { bearerAuth } from './middleware/auth';

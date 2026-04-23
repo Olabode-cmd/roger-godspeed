@@ -63,6 +63,14 @@ export interface GodspeedResponseSizeError extends Error {
   actualSize: number;
 }
 
+export interface GodspeedHeaderInjectionError extends Error {
+  type: 'header_injection';
+  /**
+   * The header name or value that triggered the injection detection.
+   */
+  offendingHeader: string;
+}
+
 /**
  * Union type representing any error explicitly thrown by the Godspeed pipeline.
  */
@@ -73,4 +81,5 @@ export type GodspeedError =
   | GodspeedValidationError
   | GodspeedParseError
   | GodspeedSSRFError
-  | GodspeedResponseSizeError;
+  | GodspeedResponseSizeError
+  | GodspeedHeaderInjectionError;

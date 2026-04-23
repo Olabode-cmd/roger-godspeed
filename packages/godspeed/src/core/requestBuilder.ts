@@ -12,9 +12,11 @@
  * A type guard function eliminates unsafe `as` casts for native body
  * types while keeping the hot path branch-free for the common JSON case.
  *
- * Dependencies: imports interfaces from `../types`.
+ * Dependencies: imports interfaces from `../types`,
+ *               imports sanitizeHeaders from `../security`.
  */
 import type { GodspeedConfig } from '../types';
+import { sanitizeHeaders } from '../security';
 
 /**
  * Determines whether a value is a native body type that can be passed
@@ -38,6 +40,10 @@ function isNativeBody(
 /**
  * Constructs a native Fetch `Request` from a method, path, resolved config,
  * and optional body.
+ *
+ * Sanitizes headers to prevent CRLF injection before constructing the
+ * Headers object. The sanitization uses lazy validation (fast indexOf checks)
+ * so clean headers pay minimal overhead.
  *
  * URL resolution handles absolute URLs, relative paths, and protocol-relative
  * URLs (`//cdn.example.com`). BaseURL concatenation uses explicit length checks
@@ -79,7 +85,8 @@ export function buildRequest(
     }
   }
 
-  const headers = new Headers(config.headers);
+  const sanitizedHeaders = sanitizeHeaders(config.headers);
+  const headers = new Headers(sanitizedHeaders);
   const init: RequestInit = { method, headers };
 
   if (config.withCredentials) {

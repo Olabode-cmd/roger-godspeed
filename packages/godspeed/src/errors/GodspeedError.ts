@@ -24,6 +24,7 @@ import type {
   GodspeedParseError,
   GodspeedSSRFError,
   GodspeedResponseSizeError,
+  GodspeedHeaderInjectionError,
 } from '../types';
 
 /**
@@ -161,6 +162,25 @@ export class ResponseSizeError extends BaseGodspeedError implements GodspeedResp
     message: string,
     public readonly maxSize: number,
     public readonly actualSize: number,
+    options?: ErrorOptions
+  ) {
+    super(message, options);
+  }
+}
+
+/**
+ * HeaderInjectionError class.
+ *
+ * Thrown when a header name or value contains characters that could
+ * enable CRLF injection or HTTP request smuggling attacks.
+ * Carries the offending header for diagnostics.
+ */
+export class HeaderInjectionError extends BaseGodspeedError implements GodspeedHeaderInjectionError {
+  public readonly type = 'header_injection';
+
+  constructor(
+    message: string,
+    public readonly offendingHeader: string,
     options?: ErrorOptions
   ) {
     super(message, options);
