@@ -71,6 +71,14 @@ export interface GodspeedHeaderInjectionError extends Error {
   offendingHeader: string;
 }
 
+export interface GodspeedRedirectError extends Error {
+  type: 'redirect';
+  /**
+   * The number of redirects that were attempted.
+   */
+  redirectCount: number;
+}
+
 /**
  * Union type representing any error explicitly thrown by the Godspeed pipeline.
  */
@@ -82,4 +90,5 @@ export type GodspeedError =
   | GodspeedParseError
   | GodspeedSSRFError
   | GodspeedResponseSizeError
-  | GodspeedHeaderInjectionError;
+  | GodspeedHeaderInjectionError
+  | GodspeedRedirectError;

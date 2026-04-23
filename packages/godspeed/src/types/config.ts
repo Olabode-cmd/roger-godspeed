@@ -56,4 +56,10 @@ export interface GodspeedConfig {
    * Defaults to 10MB. Prevents memory exhaustion from unbounded responses.
    */
   maxResponseSize?: number;
+
+  /**
+   * Maximum number of redirects to follow.
+   * Defaults to 5. Set to 0 to disable redirect following.
+   */
+  maxRedirects?: number;
 }

@@ -17,16 +17,31 @@
  * to avoid crashing applications that only import types.
  *
  * Dependencies: configResolver, requestBuilder, responseParser,
- *               compose, withRetries, ssrf guard, error classes.
+ *               compose, withRetries, security guards, error classes.
  */
 import { resolveConfig } from './configResolver';
 import { buildRequest } from './requestBuilder';
 import { parseResponse } from './responseParser';
 import { compose } from '../middleware/compose';
 import { withRetries } from '../retry/retryHandler';
-import { assertNotSSRF } from '../security';
+import {
+  assertNotSSRF,
+  assertRedirectLimit,
+  assertNoProtocolDowngrade,
+  stripSensitiveHeadersOnRedirect,
+  DEFAULT_MAX_REDIRECTS,
+} from '../security';
 import { NetworkError, TimeoutError, HttpError } from '../errors';
 import type { GodspeedConfig, MiddlewareFn, NextFn, GodspeedResponse } from '../types';
+
+/**
+ * Determines whether a response status code indicates a redirect.
+ *
+ * Covers all 3xx redirect status codes that require following a Location header.
+ */
+function isRedirect(status: number): boolean {
+  return status === 301 || status === 302 || status === 303 || status === 307 || status === 308;
+}
 
 /**
  * Determines whether a caught error originated from an AbortSignal
@@ -86,11 +101,39 @@ export function createPipeline(
         finalSignal = AbortSignal.any([finalReq.signal, timeoutSignal]);
       }
 
+      const maxRedirects = config.maxRedirects ?? DEFAULT_MAX_REDIRECTS;
+      let currentReq = finalReq;
+      let redirectCount = 0;
+
       let rawResponse: Response;
       try {
-        rawResponse = await withRetries(finalReq, config, async (attemptReq) => {
-          return await fetch(attemptReq, { signal: finalSignal });
+        rawResponse = await withRetries(currentReq, config, async (attemptReq) => {
+          return await fetch(attemptReq, { signal: finalSignal, redirect: 'manual' });
         }, finalSignal);
+
+        while (isRedirect(rawResponse.status) && redirectCount < maxRedirects) {
+          assertRedirectLimit(redirectCount, maxRedirects);
+
+          const location = rawResponse.headers.get('location');
+          if (!location) break;
+
+          const redirectURL = new URL(location, currentReq.url).href;
+
+          assertNoProtocolDowngrade(currentReq.url, redirectURL);
+          assertNotSSRF(redirectURL, config.allowPrivateNetworks === true);
+
+          currentReq = stripSensitiveHeadersOnRedirect(currentReq, redirectURL);
+          currentReq = new Request(redirectURL, {
+            method: rawResponse.status === 303 ? 'GET' : currentReq.method,
+            headers: currentReq.headers,
+            body: rawResponse.status === 303 ? null : currentReq.body,
+            credentials: currentReq.credentials,
+            signal: finalSignal,
+          });
+
+          redirectCount++;
+          rawResponse = await fetch(currentReq, { redirect: 'manual' });
+        }
       } catch (err: unknown) {
         if (isAbortRelatedError(err)) {
           throw new TimeoutError(

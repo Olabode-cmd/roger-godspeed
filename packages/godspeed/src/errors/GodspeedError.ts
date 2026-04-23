@@ -25,6 +25,7 @@ import type {
   GodspeedSSRFError,
   GodspeedResponseSizeError,
   GodspeedHeaderInjectionError,
+  GodspeedRedirectError,
 } from '../types';
 
 /**
@@ -181,6 +182,25 @@ export class HeaderInjectionError extends BaseGodspeedError implements GodspeedH
   constructor(
     message: string,
     public readonly offendingHeader: string,
+    options?: ErrorOptions
+  ) {
+    super(message, options);
+  }
+}
+
+/**
+ * RedirectError class.
+ *
+ * Thrown when a request exceeds the maximum allowed redirect count,
+ * or when a redirect attempts a protocol downgrade (https to http).
+ * Carries the redirect count for diagnostics.
+ */
+export class RedirectError extends BaseGodspeedError implements GodspeedRedirectError {
+  public readonly type = 'redirect';
+
+  constructor(
+    message: string,
+    public readonly redirectCount: number,
     options?: ErrorOptions
   ) {
     super(message, options);
