@@ -22,6 +22,10 @@ import type {
   GodspeedHttpError,
   GodspeedValidationError,
   GodspeedParseError,
+  GodspeedSSRFError,
+  GodspeedResponseSizeError,
+  GodspeedHeaderInjectionError,
+  GodspeedRedirectError,
 } from '../types';
 
 /**
@@ -122,6 +126,81 @@ export class ParseError extends BaseGodspeedError implements GodspeedParseError 
   constructor(
     message: string,
     public readonly contentType: string,
+    options?: ErrorOptions
+  ) {
+    super(message, options);
+  }
+}
+
+/**
+ * SSRFError class.
+ *
+ * Thrown when a request targets a private, reserved, or otherwise
+ * blocked network address. Carries the offending URL for diagnostics.
+ */
+export class SSRFError extends BaseGodspeedError implements GodspeedSSRFError {
+  public readonly type = 'ssrf';
+
+  constructor(
+    message: string,
+    public readonly blockedURL: string,
+    options?: ErrorOptions
+  ) {
+    super(message, options);
+  }
+}
+
+/**
+ * ResponseSizeError class.
+ *
+ * Thrown when a response body exceeds the configured maximum size limit.
+ * Carries both the limit and the actual/projected size for diagnostics.
+ */
+export class ResponseSizeError extends BaseGodspeedError implements GodspeedResponseSizeError {
+  public readonly type = 'response_size';
+
+  constructor(
+    message: string,
+    public readonly maxSize: number,
+    public readonly actualSize: number,
+    options?: ErrorOptions
+  ) {
+    super(message, options);
+  }
+}
+
+/**
+ * HeaderInjectionError class.
+ *
+ * Thrown when a header name or value contains characters that could
+ * enable CRLF injection or HTTP request smuggling attacks.
+ * Carries the offending header for diagnostics.
+ */
+export class HeaderInjectionError extends BaseGodspeedError implements GodspeedHeaderInjectionError {
+  public readonly type = 'header_injection';
+
+  constructor(
+    message: string,
+    public readonly offendingHeader: string,
+    options?: ErrorOptions
+  ) {
+    super(message, options);
+  }
+}
+
+/**
+ * RedirectError class.
+ *
+ * Thrown when a request exceeds the maximum allowed redirect count,
+ * or when a redirect attempts a protocol downgrade (https to http).
+ * Carries the redirect count for diagnostics.
+ */
+export class RedirectError extends BaseGodspeedError implements GodspeedRedirectError {
+  public readonly type = 'redirect';
+
+  constructor(
+    message: string,
+    public readonly redirectCount: number,
     options?: ErrorOptions
   ) {
     super(message, options);

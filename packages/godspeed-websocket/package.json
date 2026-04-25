@@ -1,0 +1,53 @@
+{
+  "name": "@thraggs/godspeed-websocket",
+  "type": "module",
+  "version": "1.0.1",
+  "description": "WebSocket protocol middleware for Godspeed HTTP client",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "bench": "bun tests/websocket.bench.ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "peerDependencies": {
+    "@thraggs/godspeed": "^1.0.0"
+  },
+  "devDependencies": {
+    "@thraggs/godspeed": "workspace:*",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3"
+  },
+  "keywords": [
+    "godspeed",
+    "websocket",
+    "ws",
+    "plugin",
+    "middleware"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thraggs/godspeed.git",
+    "directory": "packages/godspeed-websocket"
+  },
+  "bugs": {
+    "url": "https://github.com/thraggs/godspeed/issues"
+  },
+  "author": "Thraggs",
+  "license": "MIT"
+}

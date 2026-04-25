@@ -17,14 +17,19 @@
  * validation middleware or the client API boundary.
  *
  * Dependencies: imports `GodspeedResponse` from `../types`,
- *               imports `ParseError` from `../errors`.
+ *               imports `ParseError` from `../errors`,
+ *               imports `guardResponseSize` from `../security`.
  */
 import type { GodspeedResponse } from '../types';
 import { ParseError } from '../errors';
+import { guardResponseSize } from '../security';
 
 /**
  * Consumes the raw Response body exactly once and returns a
  * GodspeedResponse with the materialized `parsedBody`.
+ *
+ * Applies response size guard before body consumption to prevent
+ * memory exhaustion from unbounded payloads.
  *
  * Content-type detection determines the parsing strategy:
  *   - `application/json` → JSON.parse (via response.json())
@@ -35,14 +40,18 @@ import { ParseError } from '../errors';
  * from a proxy), a typed `ParseError` is thrown with the original `SyntaxError`
  * preserved in the `cause` chain.
  */
-export async function parseResponse(response: Response): Promise<GodspeedResponse<unknown>> {
-  const contentType = response.headers.get('content-type') ?? '';
+export async function parseResponse(
+  response: Response,
+  maxResponseSize?: number
+): Promise<GodspeedResponse<unknown>> {
+  const guardedResponse = guardResponseSize(response, maxResponseSize);
+  const contentType = guardedResponse.headers.get('content-type') ?? '';
 
   let parsedBody: unknown;
 
   if (contentType.includes('application/json')) {
     try {
-      parsedBody = await response.json();
+      parsedBody = await guardedResponse.json();
     } catch (error: unknown) {
       throw new ParseError(
         'Failed to parse response body as JSON',
@@ -51,15 +60,15 @@ export async function parseResponse(response: Response): Promise<GodspeedRespons
       );
     }
   } else if (contentType.includes('text/')) {
-    parsedBody = await response.text();
+    parsedBody = await guardedResponse.text();
   } else {
-    parsedBody = await response.arrayBuffer();
+    parsedBody = await guardedResponse.arrayBuffer();
   }
 
   return {
-    status: response.status,
-    statusText: response.statusText,
-    headers: response.headers,
+    status: guardedResponse.status,
+    statusText: guardedResponse.statusText,
+    headers: guardedResponse.headers,
     parsedBody
   };
 }

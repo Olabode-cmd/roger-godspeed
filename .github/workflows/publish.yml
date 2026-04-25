@@ -37,6 +37,8 @@ jobs:
         run: |
           cd packages/godspeed && bun run build
           cd ../cli && bun run build
+          cd ../godspeed-websocket && bun run build
+          cd ../godspeed-sse && bun run build
 
       - name: Publish Godspeed Core
         run: npm publish --access public
@@ -47,5 +49,17 @@ jobs:
       - name: Publish CLI
         run: npm publish --access public
         working-directory: ./packages/cli
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish WebSocket Plugin
+        run: npm publish --access public
+        working-directory: ./packages/godspeed-websocket
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish SSE Plugin
+        run: npm publish --access public
+        working-directory: ./packages/godspeed-sse
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

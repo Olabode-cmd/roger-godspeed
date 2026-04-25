@@ -43,6 +43,42 @@ export interface GodspeedParseError extends Error {
   contentType: string;
 }
 
+export interface GodspeedSSRFError extends Error {
+  type: 'ssrf';
+  /**
+   * The URL that was blocked by the SSRF guard.
+   */
+  blockedURL: string;
+}
+
+export interface GodspeedResponseSizeError extends Error {
+  type: 'response_size';
+  /**
+   * The maximum allowed response size in bytes.
+   */
+  maxSize: number;
+  /**
+   * The actual size that was encountered or projected.
+   */
+  actualSize: number;
+}
+
+export interface GodspeedHeaderInjectionError extends Error {
+  type: 'header_injection';
+  /**
+   * The header name or value that triggered the injection detection.
+   */
+  offendingHeader: string;
+}
+
+export interface GodspeedRedirectError extends Error {
+  type: 'redirect';
+  /**
+   * The number of redirects that were attempted.
+   */
+  redirectCount: number;
+}
+
 /**
  * Union type representing any error explicitly thrown by the Godspeed pipeline.
  */
@@ -51,4 +87,8 @@ export type GodspeedError =
   | GodspeedTimeoutError
   | GodspeedHttpError
   | GodspeedValidationError
-  | GodspeedParseError;
+  | GodspeedParseError
+  | GodspeedSSRFError
+  | GodspeedResponseSizeError
+  | GodspeedHeaderInjectionError
+  | GodspeedRedirectError;

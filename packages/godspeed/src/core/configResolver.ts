@@ -31,6 +31,15 @@ export function resolveConfig(
   const withCredentials = requestOptions.withCredentials ?? base.withCredentials;
   if (withCredentials !== undefined) merged.withCredentials = withCredentials;
 
+  const allowPrivateNetworks = requestOptions.allowPrivateNetworks ?? base.allowPrivateNetworks;
+  if (allowPrivateNetworks !== undefined) merged.allowPrivateNetworks = allowPrivateNetworks;
+
+  const maxResponseSize = requestOptions.maxResponseSize ?? base.maxResponseSize;
+  if (maxResponseSize !== undefined) merged.maxResponseSize = maxResponseSize;
+
+  const maxRedirects = requestOptions.maxRedirects ?? base.maxRedirects;
+  if (maxRedirects !== undefined) merged.maxRedirects = maxRedirects;
+
   if (base.params || requestOptions.params) {
     merged.params = { ...base.params, ...requestOptions.params };
   }

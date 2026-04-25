@@ -26,6 +26,10 @@ export type {
   GodspeedHttpError,
   GodspeedValidationError,
   GodspeedParseError,
+  GodspeedSSRFError,
+  GodspeedResponseSizeError,
+  GodspeedHeaderInjectionError,
+  GodspeedRedirectError,
 } from './types';
 
 export {
@@ -35,6 +39,10 @@ export {
   HttpError,
   ValidationError,
   ParseError,
+  SSRFError,
+  ResponseSizeError,
+  HeaderInjectionError,
+  RedirectError,
 } from './errors';
 
 export { bearerAuth } from './middleware/auth';
