@@ -147,3 +147,87 @@ describe('WebSocket Plugin', () => {
     globalThis.WebSocket = originalWebSocket;
   });
 });
+
+  test('Rejects on connection timeout', async () => {
+    const wsRequest = new Request('ws://slow.example.com/stream');
+    const mw = websocket({ timeoutMs: 100 });
+
+    const originalWebSocket = globalThis.WebSocket;
+    const mockSocket = {
+      protocol: '',
+      close: mock(() => {}),
+      addEventListener: mock(() => {}),
+      removeEventListener: mock(() => {}),
+    };
+
+    globalThis.WebSocket = mock(() => mockSocket) as unknown as typeof WebSocket;
+
+    try {
+      await mw(wsRequest, mockNext);
+      expect(true).toBe(false);
+    } catch (err: unknown) {
+      expect(err).toBeInstanceOf(Error);
+      if (err instanceof Error) {
+        expect(err.message).toContain('timed out');
+      }
+    }
+
+    globalThis.WebSocket = originalWebSocket;
+  });
+
+  test('Respects AbortController signal', async () => {
+    const controller = new AbortController();
+    const wsRequest = new Request('ws://localhost:8080/stream', {
+      signal: controller.signal,
+    });
+    const mw = websocket();
+
+    const originalWebSocket = globalThis.WebSocket;
+    const mockSocket = {
+      protocol: '',
+      close: mock(() => {}),
+      addEventListener: mock(() => {}),
+      removeEventListener: mock(() => {}),
+    };
+
+    globalThis.WebSocket = mock(() => mockSocket) as unknown as typeof WebSocket;
+
+    controller.abort();
+
+    try {
+      await mw(wsRequest, mockNext);
+      expect(true).toBe(false);
+    } catch (err: unknown) {
+      expect(err).toBeInstanceOf(Error);
+      if (err instanceof Error) {
+        expect(err.message).toContain('aborted');
+      }
+    }
+
+    globalThis.WebSocket = originalWebSocket;
+  });
+
+  test('Cleans up event listeners on success', async () => {
+    const wsRequest = new Request('ws://localhost:8080/stream');
+    const mw = websocket();
+
+    const originalWebSocket = globalThis.WebSocket;
+    const removeListenerMock = mock(() => {});
+    const mockSocket = {
+      protocol: '',
+      addEventListener: mock((event: string, handler: Function) => {
+        if (event === 'open') {
+          setTimeout(() => handler({}), 0);
+        }
+      }),
+      removeEventListener: removeListenerMock,
+    };
+
+    globalThis.WebSocket = mock(() => mockSocket) as unknown as typeof WebSocket;
+
+    await mw(wsRequest, mockNext);
+
+    expect(removeListenerMock).toHaveBeenCalled();
+
+    globalThis.WebSocket = originalWebSocket;
+  });

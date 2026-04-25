@@ -32,6 +32,41 @@ export interface SSEEvent {
 }
 
 /**
+ * Parses a single SSE event block into an SSEEvent object.
+ *
+ * Handles all SSE protocol fields: id, event, data, retry.
+ * Strips exactly one space after the colon per SSE spec.
+ * Ignores comment lines starting with colon.
+ *
+ * Returns null if the block contains no data field.
+ */
+function parseSSEBlock(raw: string): SSEEvent | null {
+  if (!raw.trim()) return null;
+
+  const event: SSEEvent = { data: '' };
+  const lines = raw.split('\n');
+
+  for (const line of lines) {
+    if (line.startsWith(':')) continue;
+
+    if (line.startsWith('id:')) {
+      event.id = line.charAt(3) === ' ' ? line.slice(4) : line.slice(3);
+    } else if (line.startsWith('event:')) {
+      event.event = line.charAt(6) === ' ' ? line.slice(7) : line.slice(6);
+    } else if (line.startsWith('data:')) {
+      if (event.data) event.data += '\n';
+      event.data += line.charAt(5) === ' ' ? line.slice(6) : line.slice(5);
+    } else if (line.startsWith('retry:')) {
+      const retryStr = line.charAt(6) === ' ' ? line.slice(7) : line.slice(6);
+      const retryValue = parseInt(retryStr, 10);
+      if (!isNaN(retryValue)) event.retry = retryValue;
+    }
+  }
+
+  return event.data ? event : null;
+}
+
+/**
  * Creates a TransformStream that parses SSE protocol format.
  *
  * Accumulates text chunks in a buffer and splits on double newlines
@@ -51,53 +86,15 @@ function createSSETransform(): TransformStream<string, SSEEvent> {
       buffer = events.pop() || '';
 
       for (const rawEvent of events) {
-        if (!rawEvent.trim()) continue;
-
-        const event: SSEEvent = { data: '' };
-        const lines = rawEvent.split('\n');
-
-        for (const line of lines) {
-          if (line.startsWith('id:')) {
-            event.id = line.slice(3).trim();
-          } else if (line.startsWith('event:')) {
-            event.event = line.slice(6).trim();
-          } else if (line.startsWith('data:')) {
-            if (event.data) event.data += '\n';
-            event.data += line.slice(5).trim();
-          } else if (line.startsWith('retry:')) {
-            const retryValue = parseInt(line.slice(6).trim(), 10);
-            if (!isNaN(retryValue)) event.retry = retryValue;
-          }
-        }
-
-        if (event.data) {
-          controller.enqueue(event);
-        }
+        const event = parseSSEBlock(rawEvent);
+        if (event) controller.enqueue(event);
       }
     },
 
     flush(controller) {
       if (buffer.trim()) {
-        const event: SSEEvent = { data: '' };
-        const lines = buffer.split('\n');
-
-        for (const line of lines) {
-          if (line.startsWith('id:')) {
-            event.id = line.slice(3).trim();
-          } else if (line.startsWith('event:')) {
-            event.event = line.slice(6).trim();
-          } else if (line.startsWith('data:')) {
-            if (event.data) event.data += '\n';
-            event.data += line.slice(5).trim();
-          } else if (line.startsWith('retry:')) {
-            const retryValue = parseInt(line.slice(6).trim(), 10);
-            if (!isNaN(retryValue)) event.retry = retryValue;
-          }
-        }
-
-        if (event.data) {
-          controller.enqueue(event);
-        }
+        const event = parseSSEBlock(buffer);
+        if (event) controller.enqueue(event);
       }
     },
   });

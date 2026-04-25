@@ -8,7 +8,7 @@
  * core package via peer dependency.
  */
 
-export interface GodspeedResponse<TData = unknown> {
+export interface GodspeedResponse<TData = any> {
   status: number;
   statusText: string;
   headers: Headers;

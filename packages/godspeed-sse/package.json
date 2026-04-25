@@ -2,6 +2,7 @@
   "name": "@thraggs/godspeed-sse",
   "type": "module",
   "version": "1.0.0",
+  "description": "Server-Sent Events (SSE) middleware for Godspeed HTTP client",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -11,7 +12,8 @@
   "scripts": {
     "build": "tsup",
     "test": "bun test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "bench": "bun tests/sse.bench.ts"
   },
   "files": [
     "dist"
@@ -26,6 +28,11 @@
   "peerDependencies": {
     "@thraggs/godspeed": "^1.0.0"
   },
+  "devDependencies": {
+    "@thraggs/godspeed": "workspace:*",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3"
+  },
   "keywords": [
     "godspeed",
     "sse",
@@ -34,5 +41,14 @@
     "plugin",
     "middleware"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thraggs/godspeed.git",
+    "directory": "packages/godspeed-sse"
+  },
+  "bugs": {
+    "url": "https://github.com/thraggs/godspeed/issues"
+  },
+  "author": "Thraggs",
   "license": "MIT"
 }

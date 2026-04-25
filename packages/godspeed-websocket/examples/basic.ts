@@ -12,10 +12,8 @@ client.use(websocket());
 const response = await client.get('wss://echo.websocket.org');
 const { socket } = response.parsedBody;
 
-socket.addEventListener('open', () => {
-  console.log('Connected to WebSocket server');
-  socket.send('Hello, server!');
-});
+console.log('Connected to WebSocket server');
+socket.send('Hello, server!');
 
 socket.addEventListener('message', (event) => {
   console.log('Received:', event.data);

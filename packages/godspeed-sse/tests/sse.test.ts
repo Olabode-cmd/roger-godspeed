@@ -259,3 +259,119 @@ describe('SSE Plugin', () => {
     expect(value).toEqual({ data: 'real event' });
   });
 });
+
+  test('Handles events split across chunks', async () => {
+    const dummyRequest = new Request('https://api.example.com/events');
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode('data: hel'));
+        controller.enqueue(new TextEncoder().encode('lo\n\n'));
+        controller.close();
+      },
+    });
+
+    const sseResponse: GodspeedResponse<ReadableStream<Uint8Array>> = {
+      status: 200,
+      statusText: 'OK',
+      headers: new Headers({ 'content-type': 'text/event-stream' }),
+      parsedBody: stream,
+      data: stream,
+    };
+
+    const mockNext: NextFn = async (_req: Request) => sseResponse;
+    const mw = sse();
+    const response = await mw(dummyRequest, mockNext);
+
+    const reader = response.parsedBody.getReader();
+    const { value, done } = await reader.read();
+
+    expect(done).toBe(false);
+    expect(value).toEqual({ data: 'hello' });
+  });
+
+  test('Ignores comment lines starting with colon', async () => {
+    const dummyRequest = new Request('https://api.example.com/events');
+    const sseData = ': this is a comment\ndata: real data\n\n';
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(sseData));
+        controller.close();
+      },
+    });
+
+    const sseResponse: GodspeedResponse<ReadableStream<Uint8Array>> = {
+      status: 200,
+      statusText: 'OK',
+      headers: new Headers({ 'content-type': 'text/event-stream' }),
+      parsedBody: stream,
+      data: stream,
+    };
+
+    const mockNext: NextFn = async (_req: Request) => sseResponse;
+    const mw = sse();
+    const response = await mw(dummyRequest, mockNext);
+
+    const reader = response.parsedBody.getReader();
+    const { value, done } = await reader.read();
+
+    expect(done).toBe(false);
+    expect(value).toEqual({ data: 'real data' });
+  });
+
+  test('Preserves single space after colon per SSE spec', async () => {
+    const dummyRequest = new Request('https://api.example.com/events');
+    const sseData = 'data: value with spaces  \n\n';
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(sseData));
+        controller.close();
+      },
+    });
+
+    const sseResponse: GodspeedResponse<ReadableStream<Uint8Array>> = {
+      status: 200,
+      statusText: 'OK',
+      headers: new Headers({ 'content-type': 'text/event-stream' }),
+      parsedBody: stream,
+      data: stream,
+    };
+
+    const mockNext: NextFn = async (_req: Request) => sseResponse;
+    const mw = sse();
+    const response = await mw(dummyRequest, mockNext);
+
+    const reader = response.parsedBody.getReader();
+    const { value, done } = await reader.read();
+
+    expect(done).toBe(false);
+    expect(value).toEqual({ data: 'value with spaces  ' });
+  });
+
+  test('Handles data field without space after colon', async () => {
+    const dummyRequest = new Request('https://api.example.com/events');
+    const sseData = 'data:no-space\n\n';
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(sseData));
+        controller.close();
+      },
+    });
+
+    const sseResponse: GodspeedResponse<ReadableStream<Uint8Array>> = {
+      status: 200,
+      statusText: 'OK',
+      headers: new Headers({ 'content-type': 'text/event-stream' }),
+      parsedBody: stream,
+      data: stream,
+    };
+
+    const mockNext: NextFn = async (_req: Request) => sseResponse;
+    const mw = sse();
+    const response = await mw(dummyRequest, mockNext);
+
+    const reader = response.parsedBody.getReader();
+    const { value, done } = await reader.read();
+
+    expect(done).toBe(false);
+    expect(value).toEqual({ data: 'no-space' });
+  });

@@ -29,6 +29,10 @@ export interface WebSocketResponse {
   protocol: string;
 }
 
+export interface WebSocketOptions {
+  timeoutMs?: number;
+}
+
 /**
  * Creates a middleware that intercepts WebSocket protocol requests.
  *
@@ -41,8 +45,13 @@ export interface WebSocketResponse {
  *
  * The socket is returned in an open state. Consumers must attach
  * their own error, message, and close handlers.
+ *
+ * Respects AbortController signals and enforces connection timeout.
+ * Default timeout is 30 seconds.
  */
-export function websocket(): MiddlewareFn {
+export function websocket(options: WebSocketOptions = {}): MiddlewareFn {
+  const timeoutMs = options.timeoutMs ?? 30_000;
+
   return async (req, next) => {
     const url = req.url;
 
@@ -50,10 +59,21 @@ export function websocket(): MiddlewareFn {
       return next(req);
     }
 
+    if (req.signal?.aborted) {
+      throw new Error('Request aborted');
+    }
+
     const ws = new WebSocket(url);
 
     return new Promise((resolve, reject) => {
-      ws.addEventListener('open', () => {
+      const timer = setTimeout(() => {
+        cleanup();
+        ws.close();
+        reject(new Error(`WebSocket connection timed out after ${timeoutMs}ms`));
+      }, timeoutMs);
+
+      const onOpen = () => {
+        cleanup();
         resolve({
           status: 101,
           statusText: 'Switching Protocols',
@@ -67,11 +87,30 @@ export function websocket(): MiddlewareFn {
             protocol: ws.protocol,
           } as WebSocketResponse,
         });
-      });
+      };
 
-      ws.addEventListener('error', (event) => {
-        reject(new Error(`WebSocket connection failed: ${event}`));
-      });
+      const onError = () => {
+        cleanup();
+        ws.close();
+        reject(new Error(`WebSocket connection failed for ${url}`));
+      };
+
+      const onAbort = () => {
+        cleanup();
+        ws.close();
+        reject(new Error('WebSocket connection aborted'));
+      };
+
+      const cleanup = () => {
+        clearTimeout(timer);
+        ws.removeEventListener('open', onOpen);
+        ws.removeEventListener('error', onError);
+        req.signal?.removeEventListener('abort', onAbort);
+      };
+
+      ws.addEventListener('open', onOpen);
+      ws.addEventListener('error', onError);
+      req.signal?.addEventListener('abort', onAbort);
     });
   };
 }
