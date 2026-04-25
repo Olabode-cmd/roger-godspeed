@@ -1,0 +1,37 @@
+{
+  "name": "@thraggs/godspeed-websocket",
+  "type": "module",
+  "version": "1.0.0",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "peerDependencies": {
+    "@thraggs/godspeed": "^1.0.0"
+  },
+  "keywords": [
+    "godspeed",
+    "websocket",
+    "ws",
+    "plugin",
+    "middleware"
+  ],
+  "license": "MIT"
+}
