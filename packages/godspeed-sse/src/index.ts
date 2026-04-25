@@ -127,7 +127,7 @@ export function sse(): MiddlewareFn {
     }
 
     const eventStream = (response.parsedBody as ReadableStream<Uint8Array>)
-      .pipeThrough(new TextDecoderStream())
+      .pipeThrough(new TextDecoderStream() as unknown as ReadableWritablePair<string, Uint8Array>)
       .pipeThrough(createSSETransform());
 
     return {
