@@ -1,7 +1,7 @@
 {
   "name": "@thraggs/godspeed-sse",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Server-Sent Events (SSE) middleware for Godspeed HTTP client",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
